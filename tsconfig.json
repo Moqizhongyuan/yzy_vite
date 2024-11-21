@@ -1,4 +1,3 @@
-
 {
   "compilerOptions": {
     // 支持 commonjs 模块的 default import，如 import path from 'path'
