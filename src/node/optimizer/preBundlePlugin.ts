@@ -4,8 +4,10 @@ import { BARE_IMPORT_RE } from '../constants'
 import resolve from 'resolve'
 import { init, parse } from 'es-module-lexer'
 import { normalizePath } from '../util'
-import debug from 'debug'
+import createDebug from 'debug'
 import path from 'path'
+
+const debug = createDebug('dev')
 
 export function preBundlePlugin(deps: Set<string>): Plugin {
   return {
@@ -41,7 +43,7 @@ export function preBundlePlugin(deps: Set<string>): Plugin {
         const proxyModule = []
         if (!imports.length && !exports.length) {
           const res = await import(entryPath)
-          const specifiers = Object.keys(res)
+          const specifiers = Object.keys(res).filter(item => item !== 'default')
           proxyModule.push(
             `export { ${specifiers.join(',')} } from "${entryPath}"`,
             `export default require("${entryPath}")`
@@ -52,7 +54,7 @@ export function preBundlePlugin(deps: Set<string>): Plugin {
           }
           proxyModule.push(`export * from "${entryPath}"`)
         }
-        debug(`代理模块内容: %o ${proxyModule.join('\n')}`)
+        debug('代理模块内容: %o', proxyModule.join('\n'))
         const loader = path.extname(entryPath).slice(1)
         return {
           loader: loader as Loader,
