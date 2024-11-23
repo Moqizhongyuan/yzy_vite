@@ -1,6 +1,11 @@
 import createDebug from 'debug'
 import { ServerContext } from '..'
-import { cleanUrl, isCSSRequest, isJSRequest } from '../../util'
+import {
+  cleanUrl,
+  isCSSRequest,
+  isImportRequest,
+  isJSRequest
+} from '../../util'
 import { NextHandleFunction } from 'connect'
 import { SourceDescription } from 'rollup'
 
@@ -36,7 +41,7 @@ export function transformMiddleware(
     }
     const url = req.url
     debug('transformMiddleware: %s', url)
-    if (isJSRequest(url) || isCSSRequest(url)) {
+    if (isJSRequest(url) || isCSSRequest(url) || isImportRequest(url)) {
       let result: SourceDescription | null | undefined | string =
         await transformRequest(url, serverContext)
       if (!result) {

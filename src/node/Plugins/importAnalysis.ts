@@ -24,6 +24,11 @@ export function importAnalysisPlugin(): Plugin {
       for (const importInfo of imports) {
         const { s: modStart, e: modEnd, n: modSource } = importInfo
         if (!modSource) continue
+        if (modSource.endsWith('.svg')) {
+          const resolveUrl = path.join(path.dirname(id), modSource)
+          ms.overwrite(modStart, modEnd, `${resolveUrl}?import`)
+          continue
+        }
         if (BARE_IMPORT_RE.test(modSource)) {
           const bundlePath = normalizePath(
             path.join('/', PRE_BUNDLE_DIR, `${modSource}.js`)
