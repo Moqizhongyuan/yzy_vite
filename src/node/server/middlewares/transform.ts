@@ -15,8 +15,12 @@ export async function transformRequest(
   url: string,
   serverContext: ServerContext
 ) {
-  const { pluginContainer } = serverContext
+  const { pluginContainer, moduleGraph } = serverContext
   url = cleanUrl(url)
+  let mod = await moduleGraph.getModuleByUrl(url)
+  if (mod && mod.transformResult) {
+    return mod.transformResult
+  }
   const resolvedResult = await pluginContainer.resolveId(url)
   let transformResult
   if (resolvedResult?.id) {
@@ -25,9 +29,14 @@ export async function transformRequest(
       code = code.code
     }
 
+    mod = await moduleGraph.ensureEntryFromUrl(url)
+
     if (code) {
       transformResult = await pluginContainer.transform(code, resolvedResult.id)
     }
+  }
+  if (mod) {
+    mod.transformResult = transformResult
   }
   return transformResult
 }
@@ -42,7 +51,7 @@ export function transformMiddleware(
     const url = req.url
     debug('transformMiddleware: %s', url)
     if (isJSRequest(url) || isCSSRequest(url) || isImportRequest(url)) {
-      let result: SourceDescription | null | undefined | string =
+      let result: Partial<SourceDescription> | null | undefined | string =
         await transformRequest(url, serverContext)
       if (!result) {
         return next()

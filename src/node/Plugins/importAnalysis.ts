@@ -7,7 +7,7 @@ import { BARE_IMPORT_RE, PRE_BUNDLE_DIR } from '../constants'
 import path from 'path'
 
 export function importAnalysisPlugin(): Plugin {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   let serverContext: ServerContext
   return {
     name: 'yzy_vite:import-analysis',
@@ -21,6 +21,9 @@ export function importAnalysisPlugin(): Plugin {
       await init
       const [imports] = parse(code)
       const ms = new MagicString(code)
+      const { moduleGraph } = serverContext
+      const curMod = moduleGraph.getModuleById(id)
+      const importedModules = new Set<string>()
       for (const importInfo of imports) {
         const { s: modStart, e: modEnd, n: modSource } = importInfo
         if (!modSource) continue
@@ -34,8 +37,10 @@ export function importAnalysisPlugin(): Plugin {
             path.join('/', PRE_BUNDLE_DIR, `${modSource}.js`)
           )
           ms.overwrite(modStart, modEnd, bundlePath)
+          importedModules.add(bundlePath)
         }
       }
+      moduleGraph.updateModuleInfo(curMod!, importedModules)
       return {
         code: ms.toString(),
         map: ms.generateMap()

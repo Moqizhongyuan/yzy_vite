@@ -1,3 +1,4 @@
+import { ModuleGraph } from './../ModuleGraph'
 import connect from 'connect'
 import { blue, green } from 'picocolors'
 import { optimize } from '../optimizer'
@@ -13,23 +14,22 @@ export interface ServerContext {
   pluginContainer: PluginContainer
   app: connect.Server
   plugins: Plugin[]
+  moduleGraph: ModuleGraph
 }
 
 export async function startDevServer() {
+  const moduleGraph = new ModuleGraph(url => pluginContainer.resolveId(url))
   const app = connect()
-
   const root = process.cwd()
-
   const startTime = Date.now()
-
   const plugins = resolvePlugins()
   const pluginContainer = createPluginContainer(plugins)
-
   const serverContext: ServerContext = {
     root: process.cwd(),
     app,
     pluginContainer,
-    plugins
+    plugins,
+    moduleGraph
   }
 
   for (const plugin of plugins) {
