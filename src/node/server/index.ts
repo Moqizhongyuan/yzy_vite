@@ -31,7 +31,9 @@ export async function startDevServer() {
   const pluginContainer = createPluginContainer(plugins)
   const ws = createWebSocketServer(app)
   const watcher = chokidar.watch(root, {
-    ignored: ['**/node_modules/**', '**/.git/**'],
+    // 这里按数组写法不知道为什么会有bug？？？
+    // ignored: ['**/node_modules/**', '**/.git/**'],
+    ignored: file => file.includes('node_modules') || file.includes('.git'),
     ignoreInitial: true
   })
   const serverContext: ServerContext = {

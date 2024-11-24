@@ -7,7 +7,6 @@ import { BARE_IMPORT_RE, PRE_BUNDLE_DIR } from '../constants'
 import path from 'path'
 
 export function importAnalysisPlugin(): Plugin {
-   
   let serverContext: ServerContext
   return {
     name: 'yzy_vite:import-analysis',

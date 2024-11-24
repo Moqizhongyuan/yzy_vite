@@ -10,7 +10,7 @@ export function createWebSocketServer(server: connect.Server): {
 } {
   const wss: WebSocketServer = new WebSocketServer({ port: HMR_PORT })
   wss.on('connection', socket => {
-    socket.send(JSON.stringify({ type: 'connect' }))
+    socket.send(JSON.stringify({ type: 'connected' }))
   })
 
   wss.on('error', (e: Error & { code: string }) => {
