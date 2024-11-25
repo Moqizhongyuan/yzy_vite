@@ -1,6 +1,6 @@
 import path from 'path'
 import os from 'os'
-import { HASH_RE, JS_TYPES_RE, QEURY_RE } from './constants'
+import { HASH_RE, INTERNAL_LIST, JS_TYPES_RE, QEURY_RE } from './constants'
 
 export function slash(p: string): string {
   return p.replace(/\\/g, '/')
@@ -39,4 +39,8 @@ export function removeImportQuery(url: string): string {
 
 export function getShortName(file: string, root: string) {
   return file.startsWith(root + '/') ? path.posix.relative(root, file) : file
+}
+
+export function isInternalRequest(url: string): boolean {
+  return INTERNAL_LIST.includes(url)
 }
